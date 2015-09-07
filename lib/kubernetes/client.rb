@@ -7,28 +7,34 @@ require 'kubernetes/namespace'
 
 module Kubernetes
   class Client
-    KUBERNETES_HOST = "http://localhost:8080"
+    KUBERNETES_HOST = "http://localhost:8080".freeze
+    DEFAULT_NAMESPACE = "default".freeze
+
+    attr_reader :namespace
 
     def initialize
       @connection = Excon.new(KUBERNETES_HOST)
-    end
-
-    def get_namespaces
-      response = @connection.get(path: "/api/v1/namespaces")
-      data = JSON.parse(response.body)
-      data.fetch("items").map {|item| Namespace.new(item) }
+      @namespace = DEFAULT_NAMESPACE
     end
 
     def get_pods
-      response = @connection.get(path: "/api/v1/namespaces/default/pods")
-      data = JSON.parse(response.body)
-      data.fetch("items").map {|item| Pod.new(item) }
+      get("pods").
+        fetch("items").
+        map {|item| Pod.new(item) }
     end
 
     def get_replication_controllers
-      response = @connection.get(path: "/api/v1/namespaces/default/replicationcontrollers")
-      data = JSON.parse(response.body)
-      data.fetch("items").map {|item| ReplicationController.new(item) }
+      get("replicationcontrollers").
+        fetch("items").
+        map {|item| ReplicationController.new(item) }
+    end
+
+    private
+
+    def get(path)
+      qualified_path = File.join("/api/v1/namespaces/#{namespace}", path)
+      response = @connection.get(path: qualified_path)
+      JSON.parse(response.body)
     end
   end
 end
