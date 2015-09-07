@@ -11,5 +11,9 @@ module Kubernetes
       @spec = PodSpec.new(data.fetch("spec"))
       @status = PodStatus.new(data.fetch("status"))
     end
+
+    def ==(other)
+      metadata.uid == other.metadata.uid
+    end
   end
 end

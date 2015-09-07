@@ -11,5 +11,9 @@ module Kubernetes
       @spec = ReplicationControllerSpec.new(data.fetch("spec"))
       @status = ReplicationControllerStatus.new(data.fetch("status"))
     end
+
+    def ==(other)
+      metadata.uid == other.metadata.uid
+    end
   end
 end

@@ -8,7 +8,7 @@ module Kubernetes
       @reason = data.fetch("reason", nil)
       @host_ip = data.fetch("hostIP", nil)
       @pod_ip = data.fetch("podIP", nil)
-      @start_time = Time.iso8601(data.fetch("startTime"))
+      @start_time = data.key?("startTime") && Time.iso8601(data.fetch("startTime"))
     end
 
     def pending?

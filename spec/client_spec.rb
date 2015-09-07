@@ -1,21 +1,70 @@
 require 'spec_helper'
 
 describe Kubernetes::Client do
-  let(:client) { Kubernetes::Client.new }
+  let(:client) { Kubernetes::Client.new(namespace: namespace) }
+  let(:namespace) { "ruby-k8s-#{rand(10000)}" }
 
-  describe "#get_pods" do
-    it "lists all pods in the namespace" do
-      pods = client.get_pods
-
-      expect(pods.count).to be > 0
-    end
+  before do
+    client.create_namespace(metadata: { name: namespace })
   end
 
-  describe "#get_replication_controllers" do
-    it "lists all replication controllers in the namespace" do
-      rcs = client.get_replication_controllers
+  after do
+    client.delete_namespace(namespace)
+  end
 
-      expect(rcs.count).to be > 0
-    end
+  it "creates and lists pods" do
+    pod = client.create_pod({
+      metadata: {
+        name: "testing",
+      },
+      spec: {
+        containers: [
+          {
+            name: "testing-1",
+            image: "nginx",
+            imagePullPolicy: "IfNotPresent",
+          }
+        ],
+        restartPolicy: "Always",
+        dnsPolicy: "Default",
+      }
+    })
+
+    expect(client.get_pods).to eq [pod]
+  end
+
+  it "lists all replication controllers in the namespace" do
+    rc = client.create_replication_controller({
+      metadata: {
+        name: "testing",
+      },
+      spec: {
+        selector: {
+          app: "circus"
+        },
+        template: {
+          metadata: {
+            labels: {
+              app: "circus"
+            },
+          },
+          spec: {
+            containers: [
+              {
+                name: "testing-1",
+                image: "nginx",
+                imagePullPolicy: "IfNotPresent",
+              }
+            ],
+            restartPolicy: "Always",
+            dnsPolicy: "Default",
+          }
+        },
+      }
+    })
+
+    rcs = client.get_replication_controllers
+
+    expect(rcs).to eq [rc]
   end
 end
