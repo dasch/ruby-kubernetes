@@ -2,6 +2,8 @@ require 'kubernetes/connection'
 require 'kubernetes/pod'
 require 'kubernetes/replication_controller'
 require 'kubernetes/namespace'
+require 'kubernetes/stream'
+require 'kubernetes/watch_event'
 
 module Kubernetes
   class Client
@@ -25,6 +27,14 @@ module Kubernetes
       get("pods").
         fetch("items").
         map {|item| Pod.new(item) }
+    end
+
+    def watch_pods
+      stream = Stream.new(@connection)
+
+      stream.each("watch/pods") do |line|
+        yield WatchEvent.new(JSON.parse(line))
+      end
     end
 
     def create_replication_controller(rc)

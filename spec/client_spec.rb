@@ -69,22 +69,7 @@ describe Kubernetes::Client do
   end
 
   it "gets the log for a pod" do
-    pod = client.create_pod({
-      metadata: {
-        name: "testing",
-      },
-      spec: {
-        containers: [
-          {
-            name: "testing-1",
-            image: "redis",
-            imagePullPolicy: "IfNotPresent",
-          }
-        ],
-        restartPolicy: "Always",
-        dnsPolicy: "Default",
-      }
-    })
+    pod = create_pod("testing")
 
     while pod.status.pending?
       sleep 0.1 
@@ -103,5 +88,37 @@ describe Kubernetes::Client do
     rescue Kubernetes::Error => error
       expect(error.status.reason).to eq "NotFound"
     end
+  end
+
+  it "allows watching pods" do
+    pod = create_pod("testing")
+
+    events = []
+
+    client.watch_pods do |event|
+      events << event
+      break if event.object == pod
+    end
+
+    expect(events.last.object).to eq pod
+  end
+
+  def create_pod(name)
+    client.create_pod({
+      metadata: {
+        name: name,
+      },
+      spec: {
+        containers: [
+          {
+            name: "testing-1",
+            image: "redis",
+            imagePullPolicy: "IfNotPresent",
+          }
+        ],
+        restartPolicy: "Always",
+        dnsPolicy: "Default",
+      }
+    })
   end
 end
