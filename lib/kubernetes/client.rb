@@ -16,6 +16,11 @@ module Kubernetes
       Pod.new(data)
     end
 
+    def get_pod(name)
+      data = get("pods/#{name}")
+      Pod.new(data)
+    end
+
     def get_pods
       get("pods").
         fetch("items").
@@ -24,6 +29,11 @@ module Kubernetes
 
     def create_replication_controller(rc)
       data = post("replicationcontrollers", body: rc.to_json)
+      ReplicationController.new(data)
+    end
+
+    def get_replication_controller(name)
+      data = get("replicationcontrollers/#{name}")
       ReplicationController.new(data)
     end
 

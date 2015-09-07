@@ -31,6 +31,7 @@ describe Kubernetes::Client do
     })
 
     expect(client.get_pods).to eq [pod]
+    expect(client.get_pod("testing")).to eq pod
   end
 
   it "lists all replication controllers in the namespace" do
@@ -63,8 +64,7 @@ describe Kubernetes::Client do
       }
     })
 
-    rcs = client.get_replication_controllers
-
-    expect(rcs).to eq [rc]
+    expect(client.get_replication_controllers).to eq [rc]
+    expect(client.get_replication_controller("testing")).to eq rc
   end
 end
