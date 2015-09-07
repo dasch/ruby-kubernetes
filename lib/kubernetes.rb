@@ -1,7 +1,9 @@
 require 'kubernetes/version'
 
 module Kubernetes
-  # Your code goes here...
+  def self.new(*args)
+    Client.new(*args)
+  end
 end
 
 require 'kubernetes/client'

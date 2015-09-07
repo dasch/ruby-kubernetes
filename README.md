@@ -24,7 +24,7 @@ Or install it yourself as:
 require 'kubernetes'
 
 # Assumes you're running a local proxy or SSH tunnel.
-client = Kubernetes::Client.new
+client = Kubernetes.new
 
 # Lists all pods:
 client.get_pods
