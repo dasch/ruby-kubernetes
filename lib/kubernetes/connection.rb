@@ -2,6 +2,8 @@ require 'excon'
 require 'json'
 
 module Kubernetes
+  class Error < StandardError; end
+
   class Connection
     KUBERNETES_HOST = "http://localhost:8080".freeze
 
@@ -33,7 +35,7 @@ module Kubernetes
       if response.status / 100 == 2
         JSON.parse(response.body)
       else
-        raise "Failed with status #{response.status}: #{response.body}"
+        raise Error, "Failed with status #{response.status}: #{response.body}"
       end
     end
   end
