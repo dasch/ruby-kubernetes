@@ -1,8 +1,6 @@
 # Kubernetes
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/kubernetes`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A client library for [Kubernetes](http://kubernetes.io/) in Ruby.
 
 ## Installation
 
@@ -22,7 +20,21 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'kubernetes'
+
+# Assumes you're running a local proxy or SSH tunnel.
+client = Kubernetes::Client.new
+
+# Lists all pods:
+client.get_pods
+
+# Lists all replication controllers:
+client.get_replication_controllers
+
+# Get the logs for a specific pod:
+client.logs("some-pod")
+```
 
 ## Development
 
