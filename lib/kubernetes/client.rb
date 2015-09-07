@@ -51,6 +51,10 @@ module Kubernetes
       delete("namespaces/#{name}", prefix: nil)
     end
 
+    def logs(pod_name)
+      get("pods/#{pod_name}/log")
+    end
+
     private
 
     def get(*args); @connection.get(*args); end

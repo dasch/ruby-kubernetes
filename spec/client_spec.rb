@@ -67,4 +67,32 @@ describe Kubernetes::Client do
     expect(client.get_replication_controllers).to eq [rc]
     expect(client.get_replication_controller("testing")).to eq rc
   end
+
+  it "gets the log for a pod" do
+    pod = client.create_pod({
+      metadata: {
+        name: "testing",
+      },
+      spec: {
+        containers: [
+          {
+            name: "testing-1",
+            image: "redis",
+            imagePullPolicy: "IfNotPresent",
+          }
+        ],
+        restartPolicy: "Always",
+        dnsPolicy: "Default",
+      }
+    })
+
+    while pod.status.pending?
+      sleep 0.1 
+      pod = client.get_pod("testing")
+    end
+
+    log = client.logs("testing")
+
+    expect(log).to include "Server started, Redis version"
+  end
 end

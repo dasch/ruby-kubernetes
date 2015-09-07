@@ -33,7 +33,11 @@ module Kubernetes
       response = @connection.request(method: method, path: qualified_path, **options)
 
       if response.status / 100 == 2
-        JSON.parse(response.body)
+        if response.headers["Content-Type"] =~ /json/
+          JSON.parse(response.body)
+        else
+          response.body
+        end
       else
         raise Error, "Failed with status #{response.status}: #{response.body}"
       end
