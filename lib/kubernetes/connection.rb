@@ -1,8 +1,17 @@
 require 'excon'
 require 'json'
+require 'kubernetes/status'
 
 module Kubernetes
-  class Error < StandardError; end
+  class Error < StandardError
+    attr_reader :status
+
+    def initialize(status:)
+      super(status.message)
+
+      @status = status
+    end
+  end
 
   class Connection
     KUBERNETES_HOST = "http://localhost:8080".freeze
@@ -39,7 +48,7 @@ module Kubernetes
           response.body
         end
       else
-        raise Error, "Failed with status #{response.status}: #{response.body}"
+        raise Error, status: Status.new(JSON.parse(response.body))
       end
     end
   end

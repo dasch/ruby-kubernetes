@@ -95,4 +95,13 @@ describe Kubernetes::Client do
 
     expect(log).to include "Server started, Redis version"
   end
+
+  it "handles errors" do
+    begin
+      client.get_pod("does-not-exist")
+      fail
+    rescue Kubernetes::Error => error
+      expect(error.status.reason).to eq "NotFound"
+    end
+  end
 end
