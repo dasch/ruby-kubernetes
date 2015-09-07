@@ -14,10 +14,10 @@ module Kubernetes
   end
 
   class Connection
-    KUBERNETES_HOST = "http://localhost:8080".freeze
+    KUBERNETES_HOST = ENV.fetch("KUBERNETES_HOST", "http://localhost:8080").freeze
 
-    def initialize(namespace:)
-      @connection = Excon.new(KUBERNETES_HOST)
+    def initialize(host: KUBERNETES_HOST, namespace:)
+      @connection = Excon.new(host)
       @namespace = namespace
     end
 
