@@ -33,6 +33,18 @@ module Kubernetes
       http(:delete, *args)
     end
 
+    def stream(path, &block)
+      handler = lambda {|chunk, remaining_bytes, total_bytes|
+        block.call(chunk)
+      }
+
+      http(:get, path, prefix: nil, response_block: handler)
+    ensure
+      # If the stream is stopped by the client there may be stuff still lingering
+      # in the socket.
+      @connection.reset
+    end
+
     private
 
     attr_reader :namespace
