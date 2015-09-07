@@ -2,6 +2,7 @@ require 'excon'
 require 'json'
 
 require 'kubernetes/pod'
+require 'kubernetes/replication_controller'
 require 'kubernetes/namespace'
 
 module Kubernetes
@@ -22,6 +23,12 @@ module Kubernetes
       response = @connection.get(path: "/api/v1/namespaces/default/pods")
       data = JSON.parse(response.body)
       data.fetch("items").map {|item| Pod.new(item) }
+    end
+
+    def get_replication_controllers
+      response = @connection.get(path: "/api/v1/namespaces/default/replicationcontrollers")
+      data = JSON.parse(response.body)
+      data.fetch("items").map {|item| ReplicationController.new(item) }
     end
   end
 end

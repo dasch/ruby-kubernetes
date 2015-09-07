@@ -18,4 +18,12 @@ describe Kubernetes::Client do
       expect(pods.count).to be > 0
     end
   end
+
+  describe "#get_replication_controllers" do
+    it "lists all replication controllers in the namespace" do
+      rcs = client.get_replication_controllers
+
+      expect(rcs.count).to be > 0
+    end
+  end
 end
