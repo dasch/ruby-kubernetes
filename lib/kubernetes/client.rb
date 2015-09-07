@@ -1,20 +1,14 @@
-require 'excon'
-require 'json'
-
+require 'kubernetes/connection'
 require 'kubernetes/pod'
 require 'kubernetes/replication_controller'
 require 'kubernetes/namespace'
 
 module Kubernetes
   class Client
-    KUBERNETES_HOST = "http://localhost:8080".freeze
     DEFAULT_NAMESPACE = "default".freeze
 
-    attr_reader :namespace
-
     def initialize(namespace: DEFAULT_NAMESPACE)
-      @connection = Excon.new(KUBERNETES_HOST)
-      @namespace = namespace
+      @connection = Connection.new(namespace: namespace)
     end
 
     def create_pod(pod)
@@ -49,27 +43,8 @@ module Kubernetes
 
     private
 
-    def http(method, path, prefix: "/namespaces/#{namespace}", **options)
-      qualified_path = File.join("/api/v1", prefix || "", path)
-      response = @connection.request(method: method, path: qualified_path, **options)
-
-      if response.status / 100 == 2
-        JSON.parse(response.body)
-      else
-        raise "Failed with status #{response.status}: #{response.body}"
-      end
-    end
-
-    def get(*args)
-      http(:get, *args)
-    end
-
-    def post(*args)
-      http(:post, *args)
-    end
-
-    def delete(*args)
-      http(:delete, *args)
-    end
+    def get(*args); @connection.get(*args); end
+    def post(*args); @connection.post(*args); end
+    def delete(*args); @connection.delete(*args); end
   end
 end
