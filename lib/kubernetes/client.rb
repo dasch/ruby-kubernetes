@@ -1,11 +1,23 @@
+require 'json'
 require 'kubernetes/connection'
 require 'kubernetes/pod'
 require 'kubernetes/replication_controller'
 require 'kubernetes/namespace'
 require 'kubernetes/stream'
 require 'kubernetes/watch_event'
+require 'kubernetes/status'
 
 module Kubernetes
+  class Error < StandardError
+    attr_reader :status
+
+    def initialize(status:)
+      super(status.message)
+
+      @status = status
+    end
+  end
+
   class Client
     DEFAULT_NAMESPACE = "default".freeze
 
@@ -67,8 +79,30 @@ module Kubernetes
 
     private
 
-    def get(*args); @connection.get(*args); end
-    def post(*args); @connection.post(*args); end
-    def delete(*args); @connection.delete(*args); end
+    def get(*args)
+      request(:get, *args)
+    end
+
+    def post(*args)
+      request(:post, *args)
+    end
+
+    def delete(*args)
+      request(:delete, *args)
+    end
+
+    def request(*args)
+      response = @connection.request(*args)
+
+      body = response.headers["Content-Type"] =~ /json/ ?
+        JSON.parse(response.body) :
+        response.body
+
+      if response.status == 200 || response.status == 201
+        body
+      else
+        raise Error, status: Status.new(body)
+      end
+    end
   end
 end
