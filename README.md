@@ -26,6 +26,14 @@ require 'kubernetes'
 # Assumes you're running a local proxy or SSH tunnel.
 client = Kubernetes.new
 
+# Connect to server from within a pod:
+token = File.read('/var/run/secrets/kubernetes.io/serviceaccount/token')
+client = Kubernetes.new({
+  connection: {
+    host: 'https://kubernetes', 
+    headers: { Authorization: "Bearer #{token}"}, 
+    ssl_verify_peer: false }})
+
 # Lists all pods:
 client.get_pods
 
