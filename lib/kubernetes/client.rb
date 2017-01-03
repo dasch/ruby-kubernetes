@@ -21,13 +21,18 @@ module Kubernetes
   class Client
     DEFAULT_NAMESPACE = "default".freeze
 
-    def initialize(namespace: DEFAULT_NAMESPACE)
-      @connection = Connection.new(namespace: namespace)
+    def initialize(namespace: DEFAULT_NAMESPACE, options: {})
+      connection_options = options[:connection] || {}
+      @connection = Connection.new(namespace: namespace, options: connection_options)
     end
 
     def create_pod(pod)
       data = post("pods", body: pod.to_json)
       Pod.new(data)
+    end
+
+    def delete_pod(name)
+      delete("pods/#{name}")
     end
 
     def get_pod(name)
@@ -41,10 +46,10 @@ module Kubernetes
         map {|item| Pod.new(item) }
     end
 
-    def watch_pods
+    def watch_pods(name = nil)
       stream = Stream.new(@connection)
 
-      stream.each("watch/pods") do |line|
+      stream.each("watch/#{namespace_prefix}/pods/#{name}") do |line|
         yield WatchEvent.new(JSON.parse(line))
       end
     end
@@ -103,6 +108,10 @@ module Kubernetes
       else
         raise Error, status: Status.new(body)
       end
+    end
+
+    def namespace_prefix
+      "namespaces/#{@connection.namespace}"
     end
   end
 end
