@@ -2,6 +2,8 @@ require 'time'
 
 module Kubernetes
   class PodStatus
+    attr_reader :phase, :reason, :message
+
     def initialize(data)
       @phase = data.fetch("phase")
       @message = data.fetch("message", nil)

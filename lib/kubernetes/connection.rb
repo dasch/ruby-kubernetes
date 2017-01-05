@@ -6,8 +6,8 @@ module Kubernetes
 
     attr_reader :namespace
 
-    def initialize(host: KUBERNETES_HOST, namespace:)
-      @connection = Excon.new(host)
+    def initialize(host: KUBERNETES_HOST, namespace:, options: {})
+      @connection = Excon.new(host, options)
       @namespace = namespace
     end
 
